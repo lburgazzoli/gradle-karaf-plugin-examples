@@ -1,0 +1,106 @@
+plugins {
+    id 'maven'
+    id 'groovy'
+    id 'com.github.lburgazzoli.karaf' version '0.0.47'
+    id 'java'
+    id 'osgi'
+}
+
+group "com.github.lburgazzoli"
+version "1.1.0"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    // Versions
+    camelVersion = '2.19.1'
+    mybatisVersion = '1.2.5'
+    springVersion = '3.2.12.RELEASE_2'
+}
+
+configurations {
+    fuseXml
+}
+
+dependencies {
+    fuseXml(group: 'org.apache.servicemix.bundles', name: 'org.apache.servicemix.bundles.spring-jdbc', version: springVersion)
+    fuseXml(group: 'org.mybatis', name: 'mybatis-spring', version: mybatisVersion)
+
+    compile(group: 'org.apache.camel', name: 'camel-core', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-mybatis', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-ftp', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-jasypt', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-bindy', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-mail', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-cxf', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+    compile(group: 'org.apache.camel', name: 'camel-jaxb', version: camelVersion) {
+        exclude module: 'com.sun.xml.bind:jaxb-impl'
+    }
+
+    compile(group: 'org.apache.servicemix.bundles', name: 'org.apache.servicemix.bundles.jaxb-impl', version: '2.2.11_1')
+
+    // Commons
+    compile(group: 'org.apache.commons', name: 'commons-lang3', version: '3.1')
+    compile(group: 'commons-io', name: 'commons-io', version: '2.4')
+}
+
+karaf {
+    features {
+        name = "my-features-${version}"
+        xsdVersion = '1.0.0'
+
+        includeProject = true
+
+        repository("mvn:org.apache.camel.karaf/apache-camel/${camelVersion}/xml/features")
+
+        feature {
+            name = "my-feature"
+            description = "my-feature"
+
+            configurations 'fuseXml'
+
+            feature('camel-blueprint') {
+                version = camelVersion
+            }
+            feature('camel-cxf') {
+                version = camelVersion
+            }
+            feature('camel-mybatis') {
+                version = camelVersion
+            }
+            feature('camel-ftp') {
+                version = camelVersion
+            }
+            feature('camel-jasypt') {
+                version = camelVersion
+            }
+
+            bundle("org.apache.servicemix.bundles:org.apache.servicemix.bundles.spring-jdbc:${springVersion}") {
+                attribute 'dependency', 'true'
+            }
+
+            bundle("org.mybatis:mybatis-spring:${mybatisVersion}") {
+                attribute 'dependency', 'true'
+            }
+        }
+    }
+}
